@@ -1,0 +1,357 @@
+\documentclass{article}
+\usepackage{amsmath,amsfonts,amssymb,graphicx,subcaption}
+
+\normalfont
+\normalsize
+
+\title{Brief Exploration of Navier Stokes Equations:\\Two Simple Problems Subjected to Finite Difference Methods
+}
+\author{Dean Geisel MTH7170}
+
+\begin{document}
+	\maketitle
+	\begin{abstract}
+		This paper discusses the attempts to approximate the velocity profiles of running water across a flat surface and a tilted surface using Finite Difference Methods on the Navier-Stokes Equations.
+	\end{abstract}	
+
+	\section{Planned Explorations}
+	\label{sec: Planned Explorations}
+	Fluid dynamics is a complex study that has many models and equations to explain how and why fluids move. This project was designed to explore the methods of Numerical Analysis, specifically Finite Difference Methods, as applied to fluid dynamics. This is known as Computational Fluid Dynamics (CFD). The chosen method for exploration was the Navier Stokes equations. The first problem planned is modeling the velocity of a fluid passing over a flat surface with walls on the sides. The flow will require a pressure differential, since gravity will not apply. The second problem planned finds the velocity of a fluid that flows down an incline, starting with zero velocity and no pressure differential. This second problem is planned to be split into two parts. The first part will rotate space so that there is only motion in the ramp direction. The second planned part of problem 2 will keep the calculation in 3 dimensions.
+		\section{The Navier Stokes Equations}
+	\label{sec: The Navier Stokes Equations}
+	There are multiple written versions of the Navier Stokes equations, but they are all used to calculate the velocities of "chunks" of a fluid in motion. For this project this version of the equations is used:
+	
+	\begin{center}
+	$\rho(\frac{\delta u}{\delta t}+u\frac{\delta u}{\delta x}+v\frac{\delta u}{\delta y}+w\frac{\delta u}{\delta z})=-\frac{\delta P}{\delta x}+\eta(\frac{\delta^{2} u}{\delta x^2}+\frac{\delta^{2} u}{\delta y^2}+\frac{\delta^{2} u}{\delta z^2})+F_x$
+	
+	$\rho(\frac{\delta v}{\delta t}+u\frac{\delta v}{\delta x}+v\frac{\delta v}{\delta y}+w\frac{\delta v}{\delta z})=-\frac{\delta P}{\delta y}+\eta(\frac{\delta^{2} v}{\delta x^2}+\frac{\delta^{2} v}{\delta y^2}+\frac{\delta^{2} v}{\delta z^2})+F_y$
+	
+	$\rho(\frac{\delta w}{\delta t}+u\frac{\delta w}{\delta x}+v\frac{\delta w}{\delta y}+w\frac{\delta w}{\delta z})=-\frac{\delta P}{\delta z}+\eta(\frac{\delta^{2} w}{\delta x^2}+\frac{\delta^{2} w}{\delta y^2}+\frac{\delta^{2} w}{\delta z^2})+F_z$
+	
+	$\frac{\delta u}{\delta x}+\frac{\delta v}{\delta y}+\frac{\delta w}{\delta z}=0$
+		
+	\end{center}
+where $u,v,w$ are velocities in the $x, y, z$ directions, respectively. $\eta$ is the viscosity. $P$ is the pressure. $\rho$ is the density. $F$ is the body forces, like gravity.
+Notice that the velocities are what is solved for in these equations, not the position or acceleration, though those values are involved. 
+
+Typically, the Navier Stokes equations are too complex to solve analytically, and some method of Numerical Analysis is necessary to approximate solutions. Different assumptions about the influences on the fluid enable many cancellations in the equations, which makes this complex set of equations a bit more manageable.
+
+\section{Problem 1: Flat Surface with Walls}
+	
+	\subsection{Setup}
+	
+As previously stated, the first problem is to find the velocity profile of a fluid moving across a flat surface with walls parallel to flow. This problem was chosen because there are many examples of the exact solution being found, it provides an opportunity to learn the vocabulary associated with fluid dynamics and to learn what the various variables mean and how they are used in the equations. Assumptions are as follows:
+\begin{itemize}
+	\item Steady State-the flow does not change over time
+    \item Laminar Flow-all flow is parallel
+    	\begin{itemize}
+    		\item Due to high viscosity or low velocity
+       	\end{itemize}
+       \item No Slip Condition-the velocity of the fluid is zero when in contact with a surface, i.e. the walls
+       \item Horizontal Surface-gravity is perpendicular to flow necessitating a Pressure Differential.
+       \item Consider width in halves with , $w$ as half the width.
+       \item Fully developed flow-in the space considered, the velocity profile does not change along the flow
+       \item incompressible fluid-the density does not change with pressure.
+\end{itemize}
+With these assumptions, the Navier Stokes equations simplify to:
+\begin{center}
+	 $0=-\frac{\delta P}{\delta x}+\eta(\frac{\delta^{2} u}{\delta y^2})+F_x$
+	
+	$0=-\frac{\delta P}{\delta y}+F_y$
+\end{center}
+\subsection{Analytic Solution}
+The second equation is solved for pressure and differentiated by x to show that pressure in the x direction is not dependent on y. The first equation can then be solved for the analytic solution:
+
+\begin{center}
+	 $u=\frac{1}{2\eta}(\frac{\delta P}{\delta x})(y^{2}-w^{2})$
+\end{center}
+Since $\eta, \frac{\delta P}{\delta x}$, and $w$ are all constants, the solution is parabolic with the peak velocity in the $x$ direction at $w=0$, the center of the surface parallel to the walls. This will be the basis to which the results of the Finite Difference method will be compared.
+\subsection{Finite Difference Method}
+	 To find a numerical solution, the finite difference operator was used for the second derivative:
+	 \begin{center}
+	 	$u_{yy}=\frac {U^{i}_{j-1}-2U^{i}_{j}+U^{i}_{j+1}}{(\Delta y)^{2}}$
+	 \end{center}
+	The discretization was basic:
+		
+	 Let $\frac{\delta P}{\delta x}=P$, ymesh be the y boundary and $\Delta y=h$\\
+	Then, $\frac{U_{j-1}-2U_{j}+U_{j+1}}{h^{2}}=\frac{-P}{\eta}$\\
+	Which allows for the Matrix equation $\frac{1}{h^{2}}AU=b$, where\\
+	$A=
+	\quad
+	\begin{bmatrix}
+	-2 & 1 & 0 &\cdots && &&\vdots\\
+	1 & -2 & 1 &0 &\cdots&&&\vdots\\
+	0 & 1 & -2 & 1 & 0 &\cdots&&\vdots\\
+	\vdots&&&\ddots&&&\vdots\\
+	\cdots &&&& 0 & 1 & -2
+	\end{bmatrix}$,
+	
+	$U=
+	\begin{bmatrix}
+	U_1\\
+	U_2\\
+	\vdots\\
+	\vdots\\
+	U_{ymesh-1}
+	\end{bmatrix}
+	$
+	$b=
+	\begin{bmatrix}
+	\frac{P}{\eta}\\
+	\vdots\\
+	\vdots\\	
+	\vdots\\
+	\frac{P}{\eta}
+	\end{bmatrix}$
+
+Solving for $U$ gave a parabolic profile as expected.
+Furthermore, the model responded appropriately with increased velocity for increased pressure and wider surface, decreased velocity for higher viscosity and no change for a more refined mesh.
+
+\begin{figure}[h!]
+\begin{subfigure}{0.4\linewidth}
+	\centering
+	\includegraphics[width=\linewidth]{"../../Pictures/Saved Pictures/Navier-Stokes/NS1/NS1_1"}
+	\caption{Standard Solution}
+	\label{fig:ns11}
+\end{subfigure}
+\begin{subfigure}{0.4\linewidth}
+	\centering
+	\includegraphics[width=\linewidth]{"../../Pictures/Saved Pictures/Navier-Stokes/NS1/NS1_2"}
+	\caption{Extended for effect down surface}
+	\label{fig:ns12}
+\end{subfigure}
+\begin{subfigure}{0.4\linewidth}
+	\centering
+	\includegraphics[width=\linewidth]{"../../Pictures/Saved Pictures/Navier-Stokes/NS1/NS1_5"}
+	\caption{refined Mesh}
+	\label{fig:ns15}
+\end{subfigure}
+\begin{subfigure}{0.4\linewidth}
+	\centering
+	\includegraphics[width=\linewidth]{"../../Pictures/Saved Pictures/Navier-Stokes/NS1/NS1_Pressure-3"}
+	\caption{Pressure increased to -3}
+	\label{fig:ns1pressure-3}
+\end{subfigure}
+\begin{subfigure}{0.4\linewidth}
+	\centering
+	\includegraphics[width=\linewidth]{"../../Pictures/Saved Pictures/Navier-Stokes/NS1/NS1_visc"}
+	\caption{increased viscosity 0.05}
+	\label{fig:ns1visc}
+\end{subfigure}
+\qquad\qquad\qquad
+\begin{subfigure}{0.4\linewidth}
+	\centering
+	\includegraphics[width=\linewidth]{"../../Pictures/Saved Pictures/Navier-Stokes/NS1/NS1_widthinc"}
+	\caption{increased width}
+	\label{fig:ns1widthinc}
+\end{subfigure}
+\end{figure}
+	\section{Problem 2: Inclined Surface with Walls}
+	\subsection{Setup}
+	The second problem is to find the velocities of "chunks" of fluid as they travel down a ramp. The idea is similar to problem 1, but the fluid is affected by gravity, not pressure. Another major change is that the fluid is assumed to have a velocity of $0$ at the top of the ramp. The assumptions listed are as follows:
+	\begin{itemize}
+		\item Steady State-the flow does not change over time
+		\item Laminar Flow-all flow is parallel
+		\begin{itemize}
+			\item Due to high viscosity or low velocity
+		\end{itemize}
+		\item No Slip Condition-the velocity of the fluid is zero when in contact with a surface, i.e. the walls
+		\item Non-Horizontal Surface-Surface slanted at $\theta$ degrees angle of declination
+		\begin{itemize}
+			\item Gravity causes acceleration in x and z directions
+		\end{itemize}
+		\item Consider width in halves with, $w$ as half the width.
+		\item Not a fully developed flow-The velocities DO change as the fluid progresses down the ramp
+		\begin{itemize}
+			\item reiterate: The fluid begins descent with zero initial velocity.
+		\end{itemize}
+		\item incompressible fluid-the density does not change with pressure.
+	\end{itemize}
+\subsection{Simplification}
+	With these assumptions, the Navier Stokes equations simplify to:
+	\begin{center}
+		$\rho (u\frac{\delta u}{\delta x}+w\frac{\delta u}{\delta z})=-\frac{\delta P}{\delta x}+\eta(\frac{\delta^{2} u}{\delta x^2}+\frac{\delta^{2} u}{\delta y^2}+\frac{\delta^{2} u}{\delta z^2})+F_x$
+		
+		$0=-\frac{\delta P}{\delta y}+F_y$
+		
+		$\rho (u\frac{\delta w}{\delta x}+w\frac{\delta w}{\delta z})=-\frac{\delta P}{\delta z}+\eta(\frac{\delta^{2} w}{\delta x^2}+\frac{\delta^{2} w}{\delta y^2}+\frac{\delta^{2} w}{\delta z^2})+F_z$
+	\end{center}
+These equations are three dimensional, but can be simplified further when considering the problem from a different perspective. The direction of flow, currently in x and z directions can be considered only in one direction as long as adjustments are made to the force of gravity. Then, using a technique common in physics to separate gravity into components, the affect of gravity in the ramp direction is found by:
+\begin{center}
+	$g_r=g\sin(\theta)$,
+\end{center}
+ where $g$ is the acceleration due to gravity in the normal z direction, and $g_r$ is the acceleration due to gravity in the direction of the ramp.
+
+Now, the substitutions, in perspective, not equality, can be made where $r$ replaces $x$ as position and $m$ replaces $u$ as velocity. The results of the change are as follows:
+\begin{center}
+	$\rho(m\frac{\delta m}{\delta r})=-\frac{\delta P}{\delta r}+\eta(\frac{\delta^{2} m}{\delta r^2}+\frac{\delta^{2} m}{\delta y^2})+F_r$
+	
+	$0=-\frac{\delta P}{\delta y}+F_y$
+\end{center}
+If the resultant velocities are desired in $
+<x,y,z>$ coordinates, the conversions can be done using vector operations.
+	\subsection{Failed Finite Difference Method}
+	With the equations simplified in this manner, an attempt to approximate the solutions may be attempted. The following attempt was a failure.
+	
+	As before, the second equation is only used to establish that the pressure in the ramp direction is not dependent on $y$ and that the only pressure in the $y$ direction is the hydrostatic pressure.
+	
+	Next, using center difference for both the first order and second order derivatives, and solving for $M^{i+1}_{j}$:
+	\begin{center}
+		$M^{i+1}_{j}=\dfrac{1}{\Big(\dfrac{\rho M^{i}_{j}}{2k}-\dfrac{\eta}{k^{2}}\Big)}\Big(-\frac{\delta P}{\delta r}+\rho g_{r}+\dfrac{\eta}{k^{2}}M^i_{j-1}+\Big(\dfrac{\rho M^{i}_{j}}{2k}+\dfrac{\eta}{k^{2}}\Big)M^{i-1}_{j}-\dfrac{4\eta}{k^{2}}M^{i}_{j}+\dfrac{\eta}{k^{2}}M^{i}_{j+1}\Big)$
+	\end{center}
+	where 
+	\begin{itemize}
+	\item $M^{i}_{j}$ is an approximation to $m$
+	\item$i$ is used to index the ramp direction, $r$ 
+	\item$j$ is used to index the $y$ direction
+	\item$k=\delta r=\delta y$
+	\item$\rho g_r$ is the Force of gravity in the ramp direction
+\end{itemize}
+The assumption is that all values on the right hand side of the equation are known as either constants or approximations that have previously been solved for. The flow is to use the known information to solve for each $j$ in $i+1$. Then the entire $i+1$ level of the ramp direction is solved for and now is used as the $i$ level in a recursive algorithm. 
+
+No use of ghost points and the nonlinear term makes this method unstable and produces results like the following figures, which are obviously incorrect to represent velocities.
+\begin{figure}[h!]
+\begin{subfigure}{0.4\linewidth}
+	\centering
+	\includegraphics[width=\linewidth]{"../../Pictures/Saved Pictures/Navier-Stokes/NS2/NS2_fail1"}
+	\caption{}
+	\label{fig:ns2fail1}
+\end{subfigure}
+\begin{subfigure}{0.4\linewidth}
+	\centering
+	\includegraphics[width=\linewidth]{"../../Pictures/Saved Pictures/Navier-Stokes/NS2/NS2_fail2"}
+	\caption{}
+	\label{fig:ns2fail2}
+\end{subfigure}
+\end{figure}
+
+
+\subsection{Newton's Method}
+	\subsubsection{Description of the Method for PDEs}
+	Newton's method for PDEs is modified from the method used to find the roots of nonlinear functions.
+	\begin{center}
+		For functions:
+		
+		$x_{i+1}=x_{i}-\dfrac{f(x_{i})}{f'(x_{i})}$
+		
+		For vectors:
+		
+		 $U_{n+1}=U_{n}-\dfrac{f(U_{n})}{f'(U_{n})}$
+		 
+	\end{center}
+
+Using the following substitutions, 
+\begin{center}
+	 $\delta U^{n}=U^{n+1}-U^{n}$\\
+	$f'(U_{n})=J(U^{n})$
+\end{center}
+and solving for $\delta U^{n}$, the matrix equation that needs to be solved is:
+\begin{center}
+ $J(\delta U^{n})=-f(U^{n})$
+\end{center}
+Thus, what needs to be calculated and "built" is the Jacobian, $J$, and $-f(U^{n})$.
+\subsubsection{First Attempt}
+As in the Failed Difference Method above, similar substitutions can be made, with the forward difference method for the first order derivative. Then solving the all terms to one side gives:
+\begin{center}
+	$f_{i,j}(M^{(n)})=\rho k (M^{i}_{j}(M^{i+1}_{j}-M^{i}_{j}))-(\dfrac{-\delta P}{\delta r}+\rho g_r)k^{2}-\eta(M^{i-1}_{j}+M^{i}_{j-1}-4M^{i}_{j}+M^{i}_{j+1}+M^{i+1}_{j})$
+\end{center}
+Through this function, the $-f(U^{n})$ vector will be filled. Since the function is based on the matrix $M$, the process involves reshaping $-f(U^{n})$ into a matrix with the same dimensions as $M$, calculating each entry based on the function, then reshaping it back into a vector.
+
+The Jacobian is then calculated as normal, but by using each $M^{i}_{j}$ as a variable. Then, since each index will be cycled through, the dimensions of the jacobian are $N \times N$ where $N$ is the product of the mesh sizes in each variable. It is assumed the reader is familiar with calculating the Jacobian.
+
+The Jacobian is a sparse tridiagonal block matrix:
+\begin{center}
+$	J=
+\begin{bmatrix}
+T& R& 0&0& \cdots &0\\
+K&T& R& 0 &\cdots& 0\\
+0& K& T& R &\cdots&0\\
+\vdots& &\cdots& \ddots& \cdots& \vdots\\
+0& 0& \cdots&& K& T
+\end{bmatrix}$
+\end{center}
+Where 
+\begin{itemize}
+\item $K=(-\eta)I$
+\item T is tridagonal with 
+$\begin{matrix}
+[-\eta& (\rho k M^{i+1}_{j}-2M^{i}_{j}+4\eta) &-\eta]
+\end{matrix}$
+\item $R=(\rho k M^{i}_{j}-\eta)I$
+\end{itemize}
+Notice both $J$ and $-f(U^{(n)})$ are dependent on the current matrix $M^{(n)}$ and will therefore change with each solving of $U{(n+1)}$.
+
+Another issue worth mentioning is the use of ghost points when calculating the Jacobian and $f(U^{n})$. Ghost points are found by assuming the point not found within the boundary would be part of a good approximation for the boundary point using an average. Thus,
+\begin{center}
+		$\dfrac {M^{i-1}_{j}+M^{i+1}_{j}}{2}=M^{i}_{j}$\\
+		$\implies M^{i-1}_{j}=2M^{i}_{j}-M^{i+1}_{j}$ or\\
+		$\implies M^{i+1}_{j}=2M^{i}_{j}-M^{i-1}_{j}$
+\end{center}
+Now,
+\begin{center}
+	 $\delta (M^{(n)})=J\backslash -f(M^{(n)})$ \\
+	$M^{(n+1)}=J\backslash -f(M^{(n)})+M^{(n)}$
+\end{center}
+which can be repeated until the desired accuracy is achieved.
+
+This will produce nearly the desired results. In the following diagrams, notice that the velocity in the ramp direction jumps immediately to maximum velocity. This seems to be because of the forward difference method used "pulling" the maximum velocity back in repeated iterations. The correction to this problem will be discussed in the next section.
+\begin{figure}[h!]
+\begin{subfigure}{0.4\linewidth}
+	\centering
+	\includegraphics[width=\linewidth]{"../../Pictures/Saved Pictures/Navier-Stokes/NS2/NS2_Nattempt1_1"}
+	\caption{}
+	\label{fig:ns2nattempt11}
+\end{subfigure}
+\begin{subfigure}{0.4\linewidth}
+	\centering
+	\includegraphics[width=\linewidth]{"../../Pictures/Saved Pictures/Navier-Stokes/NS2/NS2_Nattempt1_2"}
+	\caption{}
+	\label{fig:ns2nattempt12}
+\end{subfigure}
+\end{figure}
+
+\subsubsection{Second Attempt}
+The process of the first attempt is repeated, except with a backward difference method for the first order derivative.
+The calculation of F changes, but not the method. Parts of the Jacobian need to be calculated differently, but again, the method does not change. The results are what is desired, though. The velocity profiles can be seen growing from a zero velocity to the parabolic shape that is expected. As the diagrams show, the model reacts appropriately to decreased mesh size, extended ramp length, and increased angle.
+\begin{figure}[h!]
+\begin{subfigure}{0.4\linewidth}
+	\centering
+	\includegraphics[width=\linewidth]{"../../Pictures/Saved Pictures/Navier-Stokes/NS2/NS2_velocity profiles"}
+	\caption{Velocity Profiles as Looking Down the Ramp}
+	\label{fig:ns2velocity-profiles}
+\end{subfigure}
+\begin{subfigure}{0.4\linewidth}
+	\centering
+	\includegraphics[width=\linewidth]{"../../Pictures/Saved Pictures/Navier-Stokes/NS2/NS2_standard"}
+	\caption{Standard for Comparison}
+	\label{fig:ns2standard}
+\end{subfigure}
+\begin{subfigure}{0.4\linewidth}
+	\centering
+	\includegraphics[width=\linewidth]{"../../Pictures/Saved Pictures/Navier-Stokes/NS2/NS2_increased angle80"}
+	\caption{Increased Angle to 80 degrees}
+	\label{fig:ns2increased-angle80}
+\end{subfigure}
+\begin{subfigure}{0.4\linewidth}
+	\centering
+	\includegraphics[width=\linewidth]{"../../Pictures/Saved Pictures/Navier-Stokes/NS2/NS2_smaller mesh"}
+	\caption{Decreased Interval Size }
+	\label{fig:ns2smaller-mesh}
+\end{subfigure}
+\begin{subfigure}{0.4\linewidth}
+	\centering
+	\includegraphics[width=\linewidth]{"../../Pictures/Saved Pictures/Navier-Stokes/NS2/NS2_4timeslong"}
+	\caption{4 times the length}
+	\label{fig:ns24timeslong}
+\end{subfigure}
+\end{figure}
+\section{Next Times and Continuations}
+This project has a few weaknesses. 
+\begin{itemize}
+\item There is an obvious freedom with the units used in calculations.
+\item The code for Problem 2 does not return both velocity profile down the ramp and velocity in $<x,y,z>$ component form.
+\item Problem 2 was completed in both backward and forward finite difference, but not in center. This code should also be written to compare accuracy.
+\end{itemize}
+\section{Personal Notes and What Has Been Learned}
+This project has given me the opportunity to explore fluid dynamics, with which I have had an interest for a while, but have done no research into. There are many aspects to the topic that I had not previously considered, specifically laminar flow and Reynolds number. Furthermore, while searching for approximation methods, I have learned how to use Newton's method adapted for PDEs and how to calculate ghost points. These lessons are joined multiple small details in learning to code and utilizing LaTeX. I am glad to have had the opportunity.
+\end{document}
